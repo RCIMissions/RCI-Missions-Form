@@ -1,0 +1,305 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RCI Missions Yearly Data Entry</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 30px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, select, button {
+            padding: 10px;
+            margin-top: 5px;
+            width: 100%;
+            max-width: 400px;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #admin-section {
+            display: none;
+        }
+    </style>
+    <script>
+        const adminPassword = "admin123"; // Admin password
+
+        function toggleAdminAccess() {
+            const enteredPassword = prompt("Enter Admin Password:");
+            if (enteredPassword === adminPassword) {
+                document.getElementById("admin-section").style.display = "block";
+            } else {
+                alert("Access Denied");
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>RCI Missions Yearly Data Entry</h1>
+    <h2>Enter KPI Data for Each Month</h2>
+    <form id="yearly-data-form">
+        <label for="mission-name">Mission Name:</label>
+        <input type="text" id="mission-name" name="Mission Name" required>
+
+        <!-- Monthly sections -->
+        
+        <div>
+            <h3>January</h3>
+            <label for="January-attendance">Monthly Attendance:</label>
+            <input type="number" id="January-attendance" name="January Attendance" required>
+
+            <label for="January-new-members">New Members:</label>
+            <input type="number" id="January-new-members" name="January New Members" required>
+
+            <label for="January-giving">Total Giving:</label>
+            <input type="number" id="January-giving" name="January Giving" step="0.01" required>
+
+            <label for="January-outreach-events">Outreach Events:</label>
+            <input type="number" id="January-outreach-events" name="January Outreach Events" required>
+
+            <label for="January-people-reached">People Reached:</label>
+            <input type="number" id="January-people-reached" name="January People Reached" required>
+        </div>
+
+
+        <div>
+            <h3>February</h3>
+            <label for="February-attendance">Monthly Attendance:</label>
+            <input type="number" id="February-attendance" name="February Attendance" required>
+
+            <label for="February-new-members">New Members:</label>
+            <input type="number" id="February-new-members" name="February New Members" required>
+
+            <label for="February-giving">Total Giving:</label>
+            <input type="number" id="February-giving" name="February Giving" step="0.01" required>
+
+            <label for="February-outreach-events">Outreach Events:</label>
+            <input type="number" id="February-outreach-events" name="February Outreach Events" required>
+
+            <label for="February-people-reached">People Reached:</label>
+            <input type="number" id="February-people-reached" name="February People Reached" required>
+        </div>
+
+
+        <div>
+            <h3>March</h3>
+            <label for="March-attendance">Monthly Attendance:</label>
+            <input type="number" id="March-attendance" name="March Attendance" required>
+
+            <label for="March-new-members">New Members:</label>
+            <input type="number" id="March-new-members" name="March New Members" required>
+
+            <label for="March-giving">Total Giving:</label>
+            <input type="number" id="March-giving" name="March Giving" step="0.01" required>
+
+            <label for="March-outreach-events">Outreach Events:</label>
+            <input type="number" id="March-outreach-events" name="March Outreach Events" required>
+
+            <label for="March-people-reached">People Reached:</label>
+            <input type="number" id="March-people-reached" name="March People Reached" required>
+        </div>
+
+
+        <div>
+            <h3>April</h3>
+            <label for="April-attendance">Monthly Attendance:</label>
+            <input type="number" id="April-attendance" name="April Attendance" required>
+
+            <label for="April-new-members">New Members:</label>
+            <input type="number" id="April-new-members" name="April New Members" required>
+
+            <label for="April-giving">Total Giving:</label>
+            <input type="number" id="April-giving" name="April Giving" step="0.01" required>
+
+            <label for="April-outreach-events">Outreach Events:</label>
+            <input type="number" id="April-outreach-events" name="April Outreach Events" required>
+
+            <label for="April-people-reached">People Reached:</label>
+            <input type="number" id="April-people-reached" name="April People Reached" required>
+        </div>
+
+
+        <div>
+            <h3>May</h3>
+            <label for="May-attendance">Monthly Attendance:</label>
+            <input type="number" id="May-attendance" name="May Attendance" required>
+
+            <label for="May-new-members">New Members:</label>
+            <input type="number" id="May-new-members" name="May New Members" required>
+
+            <label for="May-giving">Total Giving:</label>
+            <input type="number" id="May-giving" name="May Giving" step="0.01" required>
+
+            <label for="May-outreach-events">Outreach Events:</label>
+            <input type="number" id="May-outreach-events" name="May Outreach Events" required>
+
+            <label for="May-people-reached">People Reached:</label>
+            <input type="number" id="May-people-reached" name="May People Reached" required>
+        </div>
+
+
+        <div>
+            <h3>June</h3>
+            <label for="June-attendance">Monthly Attendance:</label>
+            <input type="number" id="June-attendance" name="June Attendance" required>
+
+            <label for="June-new-members">New Members:</label>
+            <input type="number" id="June-new-members" name="June New Members" required>
+
+            <label for="June-giving">Total Giving:</label>
+            <input type="number" id="June-giving" name="June Giving" step="0.01" required>
+
+            <label for="June-outreach-events">Outreach Events:</label>
+            <input type="number" id="June-outreach-events" name="June Outreach Events" required>
+
+            <label for="June-people-reached">People Reached:</label>
+            <input type="number" id="June-people-reached" name="June People Reached" required>
+        </div>
+
+
+        <div>
+            <h3>July</h3>
+            <label for="July-attendance">Monthly Attendance:</label>
+            <input type="number" id="July-attendance" name="July Attendance" required>
+
+            <label for="July-new-members">New Members:</label>
+            <input type="number" id="July-new-members" name="July New Members" required>
+
+            <label for="July-giving">Total Giving:</label>
+            <input type="number" id="July-giving" name="July Giving" step="0.01" required>
+
+            <label for="July-outreach-events">Outreach Events:</label>
+            <input type="number" id="July-outreach-events" name="July Outreach Events" required>
+
+            <label for="July-people-reached">People Reached:</label>
+            <input type="number" id="July-people-reached" name="July People Reached" required>
+        </div>
+
+
+        <div>
+            <h3>August</h3>
+            <label for="August-attendance">Monthly Attendance:</label>
+            <input type="number" id="August-attendance" name="August Attendance" required>
+
+            <label for="August-new-members">New Members:</label>
+            <input type="number" id="August-new-members" name="August New Members" required>
+
+            <label for="August-giving">Total Giving:</label>
+            <input type="number" id="August-giving" name="August Giving" step="0.01" required>
+
+            <label for="August-outreach-events">Outreach Events:</label>
+            <input type="number" id="August-outreach-events" name="August Outreach Events" required>
+
+            <label for="August-people-reached">People Reached:</label>
+            <input type="number" id="August-people-reached" name="August People Reached" required>
+        </div>
+
+
+        <div>
+            <h3>September</h3>
+            <label for="September-attendance">Monthly Attendance:</label>
+            <input type="number" id="September-attendance" name="September Attendance" required>
+
+            <label for="September-new-members">New Members:</label>
+            <input type="number" id="September-new-members" name="September New Members" required>
+
+            <label for="September-giving">Total Giving:</label>
+            <input type="number" id="September-giving" name="September Giving" step="0.01" required>
+
+            <label for="September-outreach-events">Outreach Events:</label>
+            <input type="number" id="September-outreach-events" name="September Outreach Events" required>
+
+            <label for="September-people-reached">People Reached:</label>
+            <input type="number" id="September-people-reached" name="September People Reached" required>
+        </div>
+
+
+        <div>
+            <h3>October</h3>
+            <label for="October-attendance">Monthly Attendance:</label>
+            <input type="number" id="October-attendance" name="October Attendance" required>
+
+            <label for="October-new-members">New Members:</label>
+            <input type="number" id="October-new-members" name="October New Members" required>
+
+            <label for="October-giving">Total Giving:</label>
+            <input type="number" id="October-giving" name="October Giving" step="0.01" required>
+
+            <label for="October-outreach-events">Outreach Events:</label>
+            <input type="number" id="October-outreach-events" name="October Outreach Events" required>
+
+            <label for="October-people-reached">People Reached:</label>
+            <input type="number" id="October-people-reached" name="October People Reached" required>
+        </div>
+
+
+        <div>
+            <h3>November</h3>
+            <label for="November-attendance">Monthly Attendance:</label>
+            <input type="number" id="November-attendance" name="November Attendance" required>
+
+            <label for="November-new-members">New Members:</label>
+            <input type="number" id="November-new-members" name="November New Members" required>
+
+            <label for="November-giving">Total Giving:</label>
+            <input type="number" id="November-giving" name="November Giving" step="0.01" required>
+
+            <label for="November-outreach-events">Outreach Events:</label>
+            <input type="number" id="November-outreach-events" name="November Outreach Events" required>
+
+            <label for="November-people-reached">People Reached:</label>
+            <input type="number" id="November-people-reached" name="November People Reached" required>
+        </div>
+
+
+        <div>
+            <h3>December</h3>
+            <label for="December-attendance">Monthly Attendance:</label>
+            <input type="number" id="December-attendance" name="December Attendance" required>
+
+            <label for="December-new-members">New Members:</label>
+            <input type="number" id="December-new-members" name="December New Members" required>
+
+            <label for="December-giving">Total Giving:</label>
+            <input type="number" id="December-giving" name="December Giving" step="0.01" required>
+
+            <label for="December-outreach-events">Outreach Events:</label>
+            <input type="number" id="December-outreach-events" name="December Outreach Events" required>
+
+            <label for="December-people-reached">People Reached:</label>
+            <input type="number" id="December-people-reached" name="December People Reached" required>
+        </div>
+
+
+        <button type="submit">Submit Data</button>
+    </form>
+
+    <button onclick="toggleAdminAccess()">Admin Access</button>
+
+    <div id="admin-section">
+        <h2>Admin-Only Section</h2>
+        <p>This section is visible only to admins with the correct password.</p>
+        <p>Admin can view reports or manage data here.</p>
+    </div>
+</body>
+</html>
