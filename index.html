@@ -4,737 +4,521 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RCI Missions Yearly Data Entry</title>
+    <title>RCI Missions Form</title>
     <style>
-        /* General Styles */
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(to right, #f7f9fc, #eef2f7);
-            color: #333;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
         }
-        h1, h2, h3 {
-            text-align: center;
-            color: #0066cc;
-        }
-        form {
-            max-width: 900px;
+        .container {
+            max-width: 1200px;
             margin: 20px auto;
+            background: #fff;
             padding: 20px;
-            background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        .container.active {
+            display: block;
+        }
+        h1, h3 {
+            text-align: center;
+            color: #007BFF;
         }
         label {
             font-weight: bold;
-            color: #495057;
+            margin-top: 10px;
+            display: block;
         }
-        input, select, textarea {
-            width: 100%;
+        input, textarea, button {
+            width: 99%;
             padding: 10px;
             margin-top: 5px;
             margin-bottom: 15px;
-            border: 1px solid #ced4da;
+            border: 1px solid #ccc;
             border-radius: 5px;
-            box-sizing: border-box;
         }
         button {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            background-color: #0066cc;
-            color: #fff;
+            background-color: #007BFF;
+            color: white;
             border: none;
-            border-radius: 5px;
-            font-size: 16px;
             cursor: pointer;
+            transition: all 0.3s;
         }
         button:hover {
-            background-color: #004d99;
+            background-color: #0056b3;
         }
-        .monthly-section {
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            padding: 15px;
-            background-color: #f9f9f9;
-        }
-        .weekly-sundays {
+        .dynamic-entry {
             display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
+            align-items: center;
+            margin-bottom: 10px;
         }
-        .weekly-sundays input {
-            width: 60px;
-            text-align: center;
-        }
-        .group-fields {
-            display: flex;
-            gap: 10px;
-        }
-        .group-fields input {
+        .dynamic-entry input, .dynamic-entry textarea {
+            margin-right: 10px;
             flex: 1;
         }
-        footer {
-            text-align: center;
-            margin-top: 20px;
-            padding: 10px;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: #fff;
-        }
-        footer p {
+        .dynamic-entry button {
+            width: auto;
+            padding: 5px 10px;
             margin: 0;
-            font-size: 14px;
+        }
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+        }
+        .navigation button {
+            width: 48%;
         }
     </style>
     <script>
-        const adminPassword = "admin123"; // Admin password
+        let currentSection = 0;
 
-        function toggleMidweekDetails(event, month) {
-            const midweekDetails = document.getElementById(month + "-midweek-details");
-            if (event.target.value === "Yes") {
-                midweekDetails.style.display = "block";
-            } else {
-                midweekDetails.style.display = "none";
+        function showSection(index) {
+            const sections = document.querySelectorAll(".container");
+            sections.forEach((section, i) => {
+                section.classList.remove("active");
+                if (i === index) section.classList.add("active");
+            });
+        }
+
+        function nextSection() {
+            const sections = document.querySelectorAll(".container");
+            if (currentSection < sections.length - 1) {
+                currentSection++;
+                showSection(currentSection);
             }
         }
 
-        function showAdminSection() {
-            const enteredPassword = prompt("Enter Admin Password:");
-            if (enteredPassword === adminPassword) {
-                document.getElementById("admin-section").style.display = "block";
-            } else {
-                alert("Access Denied");
+        function previousSection() {
+            if (currentSection > 0) {
+                currentSection--;
+                showSection(currentSection);
             }
         }
+
+        function addDynamicEntry(containerId, placeholderText1, placeholderText2 = null) {
+            const container = document.getElementById(containerId);
+            const entryDiv = document.createElement("div");
+            entryDiv.className = "dynamic-entry";
+            entryDiv.innerHTML = `
+                <textarea placeholder="${placeholderText1}" required></textarea>
+                ${placeholderText2 ? `<input type="date" required>` : ''}
+                <button type="button" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            container.appendChild(entryDiv);
+        }
+
+        function addMidweekService(containerId) {
+            const container = document.getElementById(containerId);
+            const entryDiv = document.createElement("div");
+            entryDiv.className = "dynamic-entry";
+            entryDiv.innerHTML = `
+                <input type="text" placeholder="Service Type" required>
+                <input type="number" placeholder="Average Weekly Attendance" required>
+                <button type="button" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            container.appendChild(entryDiv);
+    }
+
+    function saveSubmission() {
+        const submission = {};
+        const inputs = document.querySelectorAll("form input, form textarea");
+        
+        // Loop through inputs and collect their values
+        inputs.forEach(input => {
+            submission[input.name] = input.value;
+        });
+
+        // Retrieve previous submissions or initialize empty array
+        const submissions = JSON.parse(localStorage.getItem("submissions")) || [];
+        submissions.push(submission);
+
+        // Save updated submissions back to localStorage
+        localStorage.setItem("submissions", JSON.stringify(submissions));
+
+        alert("Submission saved successfully!");
+
+        // Reset the form fields
+        document.querySelector("form").reset();
+
+        // Optionally, navigate to the admin page after submission
+        window.location.href = "admin_panel.html";
+    }
+   
+    
+        document.addEventListener("DOMContentLoaded", () => {
+            showSection(0);
+        });
     </script>
 </head>
 <body>
-    <h1>RCI Missions Yearly Data Entry</h1>
-    <h2>Metrics and KPI Collection</h2>
-    <form id="yearly-data-form">
-        <!-- General Information -->
-        
-        <h3>General Information</h3>
-        <label for="mission-field-name">Name of Mission Field:</label>
-        <input type="text" id="mission-field-name" name="Mission Field Name" required>
+    <h1>RCI Missions Data Form</h1>
+    <form onsubmit="saveSubmission(event)">
+        <!-- General Information Section -->
+        <div class="container active">
+            <h3>General Information</h3>
+            <label for="mission-name">Mission Name:</label>
+            <input type="text" id="mission-name" name="MissionName" required>
 
-        <label for="pastor-name">Name of Pastor:</label>
-        <input type="text" id="pastor-name" name="Pastor Name" required>
+            <label for="pastor-name">Pastor Name:</label>
+            <input type="text" id="pastor-name" name="PastorName" required>
 
-        <label for="location">Location of Worship:</label>
-        <input type="text" id="location" name="Location" required>
+            <label for="graduates">Foundation School Graduates (2024):</label>
+            <input type="number" id="graduates" name="Graduates" required>
 
-        <label>Leaders Breakdown (Pastors, Ministers, Deacons):</label>
-        <div class="group-fields">
-            <input type="number" name="Pastors" placeholder="Pastors" required>
-            <input type="number" name="Ministers" placeholder="Ministers" required>
-            <input type="number" name="Deacons" placeholder="Deacons" required>
-        </div>
+            <label for="ethnicities">Number of Ethnicities:</label>
+            <input type="number" id="ethnicities" name="Ethnicities" required>
 
-        <label for="graduates">Total Number of Foundation School Graduates:</label>
-        <input type="number" id="graduates" name="Graduates" required>
+            <label>Total Number of Members:</label>
+            <input type="number" name="TotalMembers" required>
 
-        <label>Events Summary (Births, Deaths, Weddings, Baptisms):</label>
-        <div class="group-fields">
-            <input type="number" name="Births" placeholder="Births" required>
-            <input type="number" name="Deaths" placeholder="Deaths" required>
-            <input type="number" name="Weddings" placeholder="Weddings" required>
-            <input type="number" name="Baptisms" placeholder="Baptisms" required>
-        </div>
+            <label>Total Number of New Members:</label>
+            <input type="number" name="TotalNewMembers" required>
 
-        <label for="community-outreach">Community Benefit Outreach:</label>
-        <textarea id="community-outreach" name="Community Benefit Outreach" rows="3" placeholder="Describe community benefit outreach activities"></textarea>
+            <label>Leaders Breakdown:</label>
+            <input type="number" placeholder="Pastors" name="Pastors" required>
+            <input type="number" placeholder="Ministers" name="Ministers" required>
+            <input type="number" placeholder="Deacons" name="Deacons" required>
 
-        <label for="major-conferences">Major Conferences Hosted:</label>
-        <textarea id="major-conferences" name="Major Conferences" rows="3" placeholder="List major conferences hosted"></textarea>
+            <label>Events Summary:</label>
+            <input type="number" placeholder="Deaths" name="Deaths" required>
+            <input type="number" placeholder="Baptisms" name="Baptisms" required>
+            <input type="number" placeholder="Weddings" name="Weddings" required>
+            <input type="number" placeholder="Births" name="Births" required>
 
-
-        <label for="graduates">Total Number of Foundation School Graduates:</label>
-        <input type="number" id="graduates" name="Graduates" required>
-
-        <label>Events Summary (Births, Deaths, Weddings, Baptisms):</label>
-        <div class="group-fields">
-            <input type="number" name="Births" placeholder="Births" required>
-            <input type="number" name="Deaths" placeholder="Deaths" required>
-            <input type="number" name="Weddings" placeholder="Weddings" required>
-            <input type="number" name="Baptisms" placeholder="Baptisms" required>
-        </div>
-
-        <label for="community-outreach">Community Benefit Outreach:</label>
-        <textarea id="community-outreach" name="Community Benefit Outreach" rows="3" placeholder="Describe community benefit outreach activities"></textarea>
-
-        <label for="major-conferences">Major Conferences Hosted:</label>
-        <textarea id="major-conferences" name="Major Conferences" rows="3" placeholder="List major conferences hosted"></textarea>
-
-        <!-- Monthly Sections -->
-        <h3>Monthly Data</h3>
-        
-        <div class="monthly-section">
-            <h4>January</h4>
-            <label>Weekly Sunday Attendance:</label>
-            <div class="weekly-sundays">
-                <input type="number" name="January Week 1" placeholder="Week 1" required>
-                <input type="number" name="January Week 2" placeholder="Week 2" required>
-                <input type="number" name="January Week 3" placeholder="Week 3" required>
-                <input type="number" name="January Week 4" placeholder="Week 4" required>
-                <input type="number" name="January Week 5" placeholder="Week 5">
-            </div>
-
-            <label for="January-attendance">Monthly Attendance:</label>
-            <input type="number" id="January-attendance" name="January Attendance" required>
-
-            <label for="January-new-members">New Members:</label>
-            <input type="number" id="January-new-members" name="January New Members" required>
-
-            <label for="January-giving">Total Giving:</label>
-            <input type="number" id="January-giving" name="January Giving" step="0.01" required>
-
-            <label for="January-outreach-events">Outreach Events:</label>
-            <input type="number" id="January-outreach-events" name="January Outreach Events" required>
-
-            <label for="January-souls-won">Number of Souls Won:</label>
-            <input type="number" id="January-souls-won" name="January Souls Won" required>
-
-            <label for="January-visitors">Number of Visitors:</label>
-            <input type="number" id="January-visitors" name="January Visitors" required>
-
-            <!-- Midweek Services -->
-            <label for="January-midweek-service">Do you have midweek services?</label>
-            <select id="January-midweek-service" name="January Midweek Service" onchange="toggleMidweekDetails(event, 'January')" required>
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-            </select>
-
-            <div id="January-midweek-details" style="display: none;">
-                <label for="January-midweek-service-type">Type of Service:</label>
-                <input type="text" id="January-midweek-service-type" name="January Midweek Service Type">
-
-                <label for="January-midweek-attendance">Attendance:</label>
-                <input type="number" id="January-midweek-attendance" name="January Midweek Attendance">
+            <div class="navigation">
+                <button type="button" onclick="nextSection()">Next</button>
             </div>
         </div>
 
+        <!-- Community Benefit Outreach Section -->
+        <div class="container">
+            <h3>Community Benefit Outreach</h3>
+            <div id="community-outreach-container"></div>
+            <button type="button" onclick="addDynamicEntry('community-outreach-container', 'Describe Outreach Activity', 'Date')">Add Outreach Event</button>
 
-        <div class="monthly-section">
-            <h4>February</h4>
-            <label>Weekly Sunday Attendance:</label>
-            <div class="weekly-sundays">
-                <input type="number" name="February Week 1" placeholder="Week 1" required>
-                <input type="number" name="February Week 2" placeholder="Week 2" required>
-                <input type="number" name="February Week 3" placeholder="Week 3" required>
-                <input type="number" name="February Week 4" placeholder="Week 4" required>
-                <input type="number" name="February Week 5" placeholder="Week 5">
-            </div>
-
-            <label for="February-attendance">Monthly Attendance:</label>
-            <input type="number" id="February-attendance" name="February Attendance" required>
-
-            <label for="February-new-members">New Members:</label>
-            <input type="number" id="February-new-members" name="February New Members" required>
-
-            <label for="February-giving">Total Giving:</label>
-            <input type="number" id="February-giving" name="February Giving" step="0.01" required>
-
-            <label for="February-outreach-events">Outreach Events:</label>
-            <input type="number" id="February-outreach-events" name="February Outreach Events" required>
-
-            <label for="February-souls-won">Number of Souls Won:</label>
-            <input type="number" id="February-souls-won" name="February Souls Won" required>
-
-            <label for="February-visitors">Number of Visitors:</label>
-            <input type="number" id="February-visitors" name="February Visitors" required>
-
-            <!-- Midweek Services -->
-            <label for="February-midweek-service">Do you have midweek services?</label>
-            <select id="February-midweek-service" name="February Midweek Service" onchange="toggleMidweekDetails(event, 'February')" required>
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-            </select>
-
-            <div id="February-midweek-details" style="display: none;">
-                <label for="February-midweek-service-type">Type of Service:</label>
-                <input type="text" id="February-midweek-service-type" name="February Midweek Service Type">
-
-                <label for="February-midweek-attendance">Attendance:</label>
-                <input type="number" id="February-midweek-attendance" name="February Midweek Attendance">
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
             </div>
         </div>
 
+        <!-- Major Conferences Section -->
+        <div class="container">
+            <h3>Major Conferences</h3>
+            <div id="major-conferences-container"></div>
+            <button type="button" onclick="addDynamicEntry('major-conferences-container', 'Describe Conference', 'Date')">Add Conference</button>
 
-        <div class="monthly-section">
-            <h4>March</h4>
-            <label>Weekly Sunday Attendance:</label>
-            <div class="weekly-sundays">
-                <input type="number" name="March Week 1" placeholder="Week 1" required>
-                <input type="number" name="March Week 2" placeholder="Week 2" required>
-                <input type="number" name="March Week 3" placeholder="Week 3" required>
-                <input type="number" name="March Week 4" placeholder="Week 4" required>
-                <input type="number" name="March Week 5" placeholder="Week 5">
-            </div>
-
-            <label for="March-attendance">Monthly Attendance:</label>
-            <input type="number" id="March-attendance" name="March Attendance" required>
-
-            <label for="March-new-members">New Members:</label>
-            <input type="number" id="March-new-members" name="March New Members" required>
-
-            <label for="March-giving">Total Giving:</label>
-            <input type="number" id="March-giving" name="March Giving" step="0.01" required>
-
-            <label for="March-outreach-events">Outreach Events:</label>
-            <input type="number" id="March-outreach-events" name="March Outreach Events" required>
-
-            <label for="March-souls-won">Number of Souls Won:</label>
-            <input type="number" id="March-souls-won" name="March Souls Won" required>
-
-            <label for="March-visitors">Number of Visitors:</label>
-            <input type="number" id="March-visitors" name="March Visitors" required>
-
-            <!-- Midweek Services -->
-            <label for="March-midweek-service">Do you have midweek services?</label>
-            <select id="March-midweek-service" name="March Midweek Service" onchange="toggleMidweekDetails(event, 'March')" required>
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-            </select>
-
-            <div id="March-midweek-details" style="display: none;">
-                <label for="March-midweek-service-type">Type of Service:</label>
-                <input type="text" id="March-midweek-service-type" name="March Midweek Service Type">
-
-                <label for="March-midweek-attendance">Attendance:</label>
-                <input type="number" id="March-midweek-attendance" name="March Midweek Attendance">
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
             </div>
         </div>
 
+        <!-- Monthly Data Sections -->
 
-        <div class="monthly-section">
-            <h4>April</h4>
-            <label>Weekly Sunday Attendance:</label>
-            <div class="weekly-sundays">
-                <input type="number" name="April Week 1" placeholder="Week 1" required>
-                <input type="number" name="April Week 2" placeholder="Week 2" required>
-                <input type="number" name="April Week 3" placeholder="Week 3" required>
-                <input type="number" name="April Week 4" placeholder="Week 4" required>
-                <input type="number" name="April Week 5" placeholder="Week 5">
-            </div>
+        <div class="container">
+            <h3>Monthly Data - January 2024</h3>
+            <label>Average Weekly Attendance:</label>
+            <input type="number" name="JanuaryAttendance" required>
 
-            <label for="April-attendance">Monthly Attendance:</label>
-            <input type="number" id="April-attendance" name="April Attendance" required>
+            <label>Total Donations:</label>
+            <input type="number" name="JanuaryDonations" step="0.01" required>
 
-            <label for="April-new-members">New Members:</label>
-            <input type="number" id="April-new-members" name="April New Members" required>
+            <label>Souls Won:</label>
+            <input type="number" name="JanuarySoulsWon" required>
 
-            <label for="April-giving">Total Giving:</label>
-            <input type="number" id="April-giving" name="April Giving" step="0.01" required>
+            <label>Visitors:</label>
+            <input type="number" name="JanuaryVisitors" required>
 
-            <label for="April-outreach-events">Outreach Events:</label>
-            <input type="number" id="April-outreach-events" name="April Outreach Events" required>
+            <h5>Midweek Services</h5>
+            <div id="january-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('january-midweek-container')">Add Midweek Service</button>
 
-            <label for="April-souls-won">Number of Souls Won:</label>
-            <input type="number" id="April-souls-won" name="April Souls Won" required>
-
-            <label for="April-visitors">Number of Visitors:</label>
-            <input type="number" id="April-visitors" name="April Visitors" required>
-
-            <!-- Midweek Services -->
-            <label for="April-midweek-service">Do you have midweek services?</label>
-            <select id="April-midweek-service" name="April Midweek Service" onchange="toggleMidweekDetails(event, 'April')" required>
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-            </select>
-
-            <div id="April-midweek-details" style="display: none;">
-                <label for="April-midweek-service-type">Type of Service:</label>
-                <input type="text" id="April-midweek-service-type" name="April Midweek Service Type">
-
-                <label for="April-midweek-attendance">Attendance:</label>
-                <input type="number" id="April-midweek-attendance" name="April Midweek Attendance">
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
             </div>
         </div>
+    
+        <div class="container">
+            <h3>Monthly Data - February 2024</h3>
+            <label>Average Weekly Attendance:</label>
+            <input type="number" name="FebruaryAttendance" required>
 
+            <label>Total Donations:</label>
+            <input type="number" name="FebruaryDonations" step="0.01" required>
 
-        <div class="monthly-section">
-            <h4>May</h4>
-            <label>Weekly Sunday Attendance:</label>
-            <div class="weekly-sundays">
-                <input type="number" name="May Week 1" placeholder="Week 1" required>
-                <input type="number" name="May Week 2" placeholder="Week 2" required>
-                <input type="number" name="May Week 3" placeholder="Week 3" required>
-                <input type="number" name="May Week 4" placeholder="Week 4" required>
-                <input type="number" name="May Week 5" placeholder="Week 5">
-            </div>
+            <label>Souls Won:</label>
+            <input type="number" name="FebruarySoulsWon" required>
 
-            <label for="May-attendance">Monthly Attendance:</label>
-            <input type="number" id="May-attendance" name="May Attendance" required>
+            <label>Visitors:</label>
+            <input type="number" name="FebruaryVisitors" required>
 
-            <label for="May-new-members">New Members:</label>
-            <input type="number" id="May-new-members" name="May New Members" required>
+            <h5>Midweek Services</h5>
+            <div id="february-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('february-midweek-container')">Add Midweek Service</button>
 
-            <label for="May-giving">Total Giving:</label>
-            <input type="number" id="May-giving" name="May Giving" step="0.01" required>
-
-            <label for="May-outreach-events">Outreach Events:</label>
-            <input type="number" id="May-outreach-events" name="May Outreach Events" required>
-
-            <label for="May-souls-won">Number of Souls Won:</label>
-            <input type="number" id="May-souls-won" name="May Souls Won" required>
-
-            <label for="May-visitors">Number of Visitors:</label>
-            <input type="number" id="May-visitors" name="May Visitors" required>
-
-            <!-- Midweek Services -->
-            <label for="May-midweek-service">Do you have midweek services?</label>
-            <select id="May-midweek-service" name="May Midweek Service" onchange="toggleMidweekDetails(event, 'May')" required>
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-            </select>
-
-            <div id="May-midweek-details" style="display: none;">
-                <label for="May-midweek-service-type">Type of Service:</label>
-                <input type="text" id="May-midweek-service-type" name="May Midweek Service Type">
-
-                <label for="May-midweek-attendance">Attendance:</label>
-                <input type="number" id="May-midweek-attendance" name="May Midweek Attendance">
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
             </div>
         </div>
+    
+        <div class="container">
+            <h3>Monthly Data - March 2024</h3>
+            <label>Average Weekly Attendance:</label>
+            <input type="number" name="MarchAttendance" required>
 
+            <label>Total Donations:</label>
+            <input type="number" name="MarchDonations" step="0.01" required>
 
-        <div class="monthly-section">
-            <h4>June</h4>
-            <label>Weekly Sunday Attendance:</label>
-            <div class="weekly-sundays">
-                <input type="number" name="June Week 1" placeholder="Week 1" required>
-                <input type="number" name="June Week 2" placeholder="Week 2" required>
-                <input type="number" name="June Week 3" placeholder="Week 3" required>
-                <input type="number" name="June Week 4" placeholder="Week 4" required>
-                <input type="number" name="June Week 5" placeholder="Week 5">
-            </div>
+            <label>Souls Won:</label>
+            <input type="number" name="MarchSoulsWon" required>
 
-            <label for="June-attendance">Monthly Attendance:</label>
-            <input type="number" id="June-attendance" name="June Attendance" required>
+            <label>Visitors:</label>
+            <input type="number" name="MarchVisitors" required>
 
-            <label for="June-new-members">New Members:</label>
-            <input type="number" id="June-new-members" name="June New Members" required>
+            <h5>Midweek Services</h5>
+            <div id="march-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('march-midweek-container')">Add Midweek Service</button>
 
-            <label for="June-giving">Total Giving:</label>
-            <input type="number" id="June-giving" name="June Giving" step="0.01" required>
-
-            <label for="June-outreach-events">Outreach Events:</label>
-            <input type="number" id="June-outreach-events" name="June Outreach Events" required>
-
-            <label for="June-souls-won">Number of Souls Won:</label>
-            <input type="number" id="June-souls-won" name="June Souls Won" required>
-
-            <label for="June-visitors">Number of Visitors:</label>
-            <input type="number" id="June-visitors" name="June Visitors" required>
-
-            <!-- Midweek Services -->
-            <label for="June-midweek-service">Do you have midweek services?</label>
-            <select id="June-midweek-service" name="June Midweek Service" onchange="toggleMidweekDetails(event, 'June')" required>
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-            </select>
-
-            <div id="June-midweek-details" style="display: none;">
-                <label for="June-midweek-service-type">Type of Service:</label>
-                <input type="text" id="June-midweek-service-type" name="June Midweek Service Type">
-
-                <label for="June-midweek-attendance">Attendance:</label>
-                <input type="number" id="June-midweek-attendance" name="June Midweek Attendance">
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
             </div>
         </div>
+    
+        <div class="container">
+            <h3>Monthly Data - April 2024</h3>
+            <label>Average Weekly Attendance:</label>
+            <input type="number" name="AprilAttendance" required>
 
+            <label>Total Donations:</label>
+            <input type="number" name="AprilDonations" step="0.01" required>
 
-        <div class="monthly-section">
-            <h4>July</h4>
-            <label>Weekly Sunday Attendance:</label>
-            <div class="weekly-sundays">
-                <input type="number" name="July Week 1" placeholder="Week 1" required>
-                <input type="number" name="July Week 2" placeholder="Week 2" required>
-                <input type="number" name="July Week 3" placeholder="Week 3" required>
-                <input type="number" name="July Week 4" placeholder="Week 4" required>
-                <input type="number" name="July Week 5" placeholder="Week 5">
+            <label>Souls Won:</label>
+            <input type="number" name="AprilSoulsWon" required>
+
+            <label>Visitors:</label>
+            <input type="number" name="AprilVisitors" required>
+
+            <h5>Midweek Services</h5>
+            <div id="april-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('april-midweek-container')">Add Midweek Service</button>
+
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
             </div>
+        </div>
+    
+        <div class="container">
+            <h3>Monthly Data - May 2024</h3>
+            <label>Average Weekly Attendance:</label>
+            <input type="number" name="MayAttendance" required>
 
-            <label for="July-attendance">Monthly Attendance:</label>
-            <input type="number" id="July-attendance" name="July Attendance" required>
+            <label>Total Donations:</label>
+            <input type="number" name="MayDonations" step="0.01" required>
 
-            <label for="July-new-members">New Members:</label>
-            <input type="number" id="July-new-members" name="July New Members" required>
+            <label>Souls Won:</label>
+            <input type="number" name="MaySoulsWon" required>
 
-            <label for="July-giving">Total Giving:</label>
-            <input type="number" id="July-giving" name="July Giving" step="0.01" required>
+            <label>Visitors:</label>
+            <input type="number" name="MayVisitors" required>
 
-            <label for="July-outreach-events">Outreach Events:</label>
-            <input type="number" id="July-outreach-events" name="July Outreach Events" required>
+            <h5>Midweek Services</h5>
+            <div id="may-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('may-midweek-container')">Add Midweek Service</button>
 
-            <label for="July-souls-won">Number of Souls Won:</label>
-            <input type="number" id="July-souls-won" name="July Souls Won" required>
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
+            </div>
+        </div>
+    
+        <div class="container">
+            <h3>Monthly Data - June 2024</h3>
+            <label>Average Weekly Attendance:</label>
+            <input type="number" name="JuneAttendance" required>
 
-            <label for="July-visitors">Number of Visitors:</label>
-            <input type="number" id="July-visitors" name="July Visitors" required>
+            <label>Total Donations:</label>
+            <input type="number" name="JuneDonations" step="0.01" required>
 
-            <!-- Midweek Services -->
-            <label for="July-midweek-service">Do you have midweek services?</label>
-            <select id="July-midweek-service" name="July Midweek Service" onchange="toggleMidweekDetails(event, 'July')" required>
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-            </select>
+            <label>Souls Won:</label>
+            <input type="number" name="JuneSoulsWon" required>
 
-            <div id="July-midweek-details" style="display: none;">
-                <label for="July-midweek-service-type">Type of Service:</label>
-                <input type="text" id="July-midweek-service-type" name="July Midweek Service Type">
+            <label>Visitors:</label>
+            <input type="number" name="JuneVisitors" required>
 
-                <label for="July-midweek-attendance">Attendance:</label>
-                <input type="number" id="July-midweek-attendance" name="July Midweek Attendance">
+            <h5>Midweek Services</h5>
+            <div id="june-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('june-midweek-container')">Add Midweek Service</button>
+
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
+            </div>
+        </div>
+    
+        <div class="container">
+            <h3>Monthly Data - July 2024</h3>
+            <label>Average Weekly Attendance:</label>
+            <input type="number" name="JulyAttendance" required>
+
+            <label>Total Donations:</label>
+            <input type="number" name="JulyDonations" step="0.01" required>
+
+            <label>Souls Won:</label>
+            <input type="number" name="JulySoulsWon" required>
+
+            <label>Visitors:</label>
+            <input type="number" name="JulyVisitors" required>
+
+            <h5>Midweek Services</h5>
+            <div id="july-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('july-midweek-container')">Add Midweek Service</button>
+
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
+            </div>
+        </div>
+    
+        <div class="container">
+            <h3>Monthly Data - August 2024</h3>
+            <label>Average Weekly Attendance:</label>
+            <input type="number" name="AugustAttendance" required>
+
+            <label>Total Donations:</label>
+            <input type="number" name="AugustDonations" step="0.01" required>
+
+            <label>Souls Won:</label>
+            <input type="number" name="AugustSoulsWon" required>
+
+            <label>Visitors:</label>
+            <input type="number" name="AugustVisitors" required>
+
+            <h5>Midweek Services</h5>
+            <div id="august-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('august-midweek-container')">Add Midweek Service</button>
+
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
+            </div>
+        </div>
+    
+        <div class="container">
+            <h3>Monthly Data - September 2024</h3>
+            <label>Average Weekly Attendance:</label>
+            <input type="number" name="SeptemberAttendance" required>
+
+            <label>Total Donations:</label>
+            <input type="number" name="SeptemberDonations" step="0.01" required>
+
+            <label>Souls Won:</label>
+            <input type="number" name="SeptemberSoulsWon" required>
+
+            <label>Visitors:</label>
+            <input type="number" name="SeptemberVisitors" required>
+
+            <h5>Midweek Services</h5>
+            <div id="september-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('september-midweek-container')">Add Midweek Service</button>
+
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
+            </div>
+        </div>
+    
+        <div class="container">
+            <h3>Monthly Data - October 2024</h3>
+            <label>Average Weekly Attendance:</label>
+            <input type="number" name="OctoberAttendance" required>
+
+            <label>Total Donations:</label>
+            <input type="number" name="OctoberDonations" step="0.01" required>
+
+            <label>Souls Won:</label>
+            <input type="number" name="OctoberSoulsWon" required>
+
+            <label>Visitors:</label>
+            <input type="number" name="OctoberVisitors" required>
+
+            <h5>Midweek Services</h5>
+            <div id="october-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('october-midweek-container')">Add Midweek Service</button>
+
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
+            </div>
+        </div>
+    
+        <div class="container">
+            <h3>Monthly Data - November 2024</h3>
+            <label>Average Weekly Attendance:</label>
+            <input type="number" name="NovemberAttendance" required>
+
+            <label>Total Donations:</label>
+            <input type="number" name="NovemberDonations" step="0.01" required>
+
+            <label>Souls Won:</label>
+            <input type="number" name="NovemberSoulsWon" required>
+
+            <label>Visitors:</label>
+            <input type="number" name="NovemberVisitors" required>
+
+            <h5>Midweek Services</h5>
+            <div id="november-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('november-midweek-container')">Add Midweek Service</button>
+
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
+            </div>
+        </div>
+    
+        <div class="container">
+            <h3>Monthly Data - December 2024</h3>
+            <label>Average Weekly Attendance:</label>
+            <input type="number" name="DecemberAttendance" required>
+
+            <label>Total Donations:</label>
+            <input type="number" name="DecemberDonations" step="0.01" required>
+
+            <label>Souls Won:</label>
+            <input type="number" name="DecemberSoulsWon" required>
+
+            <label>Visitors:</label>
+            <input type="number" name="DecemberVisitors" required>
+
+            <h5>Midweek Services</h5>
+            <div id="december-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('december-midweek-container')">Add Midweek Service</button>
+
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
             </div>
         </div>
 
 
-        <div class="monthly-section">
-            <h4>August</h4>
-            <label>Weekly Sunday Attendance:</label>
-            <div class="weekly-sundays">
-                <input type="number" name="August Week 1" placeholder="Week 1" required>
-                <input type="number" name="August Week 2" placeholder="Week 2" required>
-                <input type="number" name="August Week 3" placeholder="Week 3" required>
-                <input type="number" name="August Week 4" placeholder="Week 4" required>
-                <input type="number" name="August Week 5" placeholder="Week 5">
-            </div>
+        <!-- Final Submission Section -->
+  <div class="container">
+    <h3>Finalize and Submit</h3>
+    <p>Review all entered data and click "Submit" to save.</p>
+    <button type="button" onclick="saveSubmission()">Submit</button>
+    <button type="button" onclick="window.location.href='admin_panel.html'">Go to Admin Panel</button>
+</div>
 
-            <label for="August-attendance">Monthly Attendance:</label>
-            <input type="number" id="August-attendance" name="August Attendance" required>
-
-            <label for="August-new-members">New Members:</label>
-            <input type="number" id="August-new-members" name="August New Members" required>
-
-            <label for="August-giving">Total Giving:</label>
-            <input type="number" id="August-giving" name="August Giving" step="0.01" required>
-
-            <label for="August-outreach-events">Outreach Events:</label>
-            <input type="number" id="August-outreach-events" name="August Outreach Events" required>
-
-            <label for="August-souls-won">Number of Souls Won:</label>
-            <input type="number" id="August-souls-won" name="August Souls Won" required>
-
-            <label for="August-visitors">Number of Visitors:</label>
-            <input type="number" id="August-visitors" name="August Visitors" required>
-
-            <!-- Midweek Services -->
-            <label for="August-midweek-service">Do you have midweek services?</label>
-            <select id="August-midweek-service" name="August Midweek Service" onchange="toggleMidweekDetails(event, 'August')" required>
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-            </select>
-
-            <div id="August-midweek-details" style="display: none;">
-                <label for="August-midweek-service-type">Type of Service:</label>
-                <input type="text" id="August-midweek-service-type" name="August Midweek Service Type">
-
-                <label for="August-midweek-attendance">Attendance:</label>
-                <input type="number" id="August-midweek-attendance" name="August Midweek Attendance">
-            </div>
         </div>
-
-
-        <div class="monthly-section">
-            <h4>September</h4>
-            <label>Weekly Sunday Attendance:</label>
-            <div class="weekly-sundays">
-                <input type="number" name="September Week 1" placeholder="Week 1" required>
-                <input type="number" name="September Week 2" placeholder="Week 2" required>
-                <input type="number" name="September Week 3" placeholder="Week 3" required>
-                <input type="number" name="September Week 4" placeholder="Week 4" required>
-                <input type="number" name="September Week 5" placeholder="Week 5">
-            </div>
-
-            <label for="September-attendance">Monthly Attendance:</label>
-            <input type="number" id="September-attendance" name="September Attendance" required>
-
-            <label for="September-new-members">New Members:</label>
-            <input type="number" id="September-new-members" name="September New Members" required>
-
-            <label for="September-giving">Total Giving:</label>
-            <input type="number" id="September-giving" name="September Giving" step="0.01" required>
-
-            <label for="September-outreach-events">Outreach Events:</label>
-            <input type="number" id="September-outreach-events" name="September Outreach Events" required>
-
-            <label for="September-souls-won">Number of Souls Won:</label>
-            <input type="number" id="September-souls-won" name="September Souls Won" required>
-
-            <label for="September-visitors">Number of Visitors:</label>
-            <input type="number" id="September-visitors" name="September Visitors" required>
-
-            <!-- Midweek Services -->
-            <label for="September-midweek-service">Do you have midweek services?</label>
-            <select id="September-midweek-service" name="September Midweek Service" onchange="toggleMidweekDetails(event, 'September')" required>
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-            </select>
-
-            <div id="September-midweek-details" style="display: none;">
-                <label for="September-midweek-service-type">Type of Service:</label>
-                <input type="text" id="September-midweek-service-type" name="September Midweek Service Type">
-
-                <label for="September-midweek-attendance">Attendance:</label>
-                <input type="number" id="September-midweek-attendance" name="September Midweek Attendance">
-            </div>
-        </div>
-
-
-        <div class="monthly-section">
-            <h4>October</h4>
-            <label>Weekly Sunday Attendance:</label>
-            <div class="weekly-sundays">
-                <input type="number" name="October Week 1" placeholder="Week 1" required>
-                <input type="number" name="October Week 2" placeholder="Week 2" required>
-                <input type="number" name="October Week 3" placeholder="Week 3" required>
-                <input type="number" name="October Week 4" placeholder="Week 4" required>
-                <input type="number" name="October Week 5" placeholder="Week 5">
-            </div>
-
-            <label for="October-attendance">Monthly Attendance:</label>
-            <input type="number" id="October-attendance" name="October Attendance" required>
-
-            <label for="October-new-members">New Members:</label>
-            <input type="number" id="October-new-members" name="October New Members" required>
-
-            <label for="October-giving">Total Giving:</label>
-            <input type="number" id="October-giving" name="October Giving" step="0.01" required>
-
-            <label for="October-outreach-events">Outreach Events:</label>
-            <input type="number" id="October-outreach-events" name="October Outreach Events" required>
-
-            <label for="October-souls-won">Number of Souls Won:</label>
-            <input type="number" id="October-souls-won" name="October Souls Won" required>
-
-            <label for="October-visitors">Number of Visitors:</label>
-            <input type="number" id="October-visitors" name="October Visitors" required>
-
-            <!-- Midweek Services -->
-            <label for="October-midweek-service">Do you have midweek services?</label>
-            <select id="October-midweek-service" name="October Midweek Service" onchange="toggleMidweekDetails(event, 'October')" required>
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-            </select>
-
-            <div id="October-midweek-details" style="display: none;">
-                <label for="October-midweek-service-type">Type of Service:</label>
-                <input type="text" id="October-midweek-service-type" name="October Midweek Service Type">
-
-                <label for="October-midweek-attendance">Attendance:</label>
-                <input type="number" id="October-midweek-attendance" name="October Midweek Attendance">
-            </div>
-        </div>
-
-
-        <div class="monthly-section">
-            <h4>November</h4>
-            <label>Weekly Sunday Attendance:</label>
-            <div class="weekly-sundays">
-                <input type="number" name="November Week 1" placeholder="Week 1" required>
-                <input type="number" name="November Week 2" placeholder="Week 2" required>
-                <input type="number" name="November Week 3" placeholder="Week 3" required>
-                <input type="number" name="November Week 4" placeholder="Week 4" required>
-                <input type="number" name="November Week 5" placeholder="Week 5">
-            </div>
-
-            <label for="November-attendance">Monthly Attendance:</label>
-            <input type="number" id="November-attendance" name="November Attendance" required>
-
-            <label for="November-new-members">New Members:</label>
-            <input type="number" id="November-new-members" name="November New Members" required>
-
-            <label for="November-giving">Total Giving:</label>
-            <input type="number" id="November-giving" name="November Giving" step="0.01" required>
-
-            <label for="November-outreach-events">Outreach Events:</label>
-            <input type="number" id="November-outreach-events" name="November Outreach Events" required>
-
-            <label for="November-souls-won">Number of Souls Won:</label>
-            <input type="number" id="November-souls-won" name="November Souls Won" required>
-
-            <label for="November-visitors">Number of Visitors:</label>
-            <input type="number" id="November-visitors" name="November Visitors" required>
-
-            <!-- Midweek Services -->
-            <label for="November-midweek-service">Do you have midweek services?</label>
-            <select id="November-midweek-service" name="November Midweek Service" onchange="toggleMidweekDetails(event, 'November')" required>
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-            </select>
-
-            <div id="November-midweek-details" style="display: none;">
-                <label for="November-midweek-service-type">Type of Service:</label>
-                <input type="text" id="November-midweek-service-type" name="November Midweek Service Type">
-
-                <label for="November-midweek-attendance">Attendance:</label>
-                <input type="number" id="November-midweek-attendance" name="November Midweek Attendance">
-            </div>
-        </div>
-
-
-        <div class="monthly-section">
-            <h4>December</h4>
-            <label>Weekly Sunday Attendance:</label>
-            <div class="weekly-sundays">
-                <input type="number" name="December Week 1" placeholder="Week 1" required>
-                <input type="number" name="December Week 2" placeholder="Week 2" required>
-                <input type="number" name="December Week 3" placeholder="Week 3" required>
-                <input type="number" name="December Week 4" placeholder="Week 4" required>
-                <input type="number" name="December Week 5" placeholder="Week 5">
-            </div>
-
-            <label for="December-attendance">Monthly Attendance:</label>
-            <input type="number" id="December-attendance" name="December Attendance" required>
-
-            <label for="December-new-members">New Members:</label>
-            <input type="number" id="December-new-members" name="December New Members" required>
-
-            <label for="December-giving">Total Giving:</label>
-            <input type="number" id="December-giving" name="December Giving" step="0.01" required>
-
-            <label for="December-outreach-events">Outreach Events:</label>
-            <input type="number" id="December-outreach-events" name="December Outreach Events" required>
-
-            <label for="December-souls-won">Number of Souls Won:</label>
-            <input type="number" id="December-souls-won" name="December Souls Won" required>
-
-            <label for="December-visitors">Number of Visitors:</label>
-            <input type="number" id="December-visitors" name="December Visitors" required>
-
-            <!-- Midweek Services -->
-            <label for="December-midweek-service">Do you have midweek services?</label>
-            <select id="December-midweek-service" name="December Midweek Service" onchange="toggleMidweekDetails(event, 'December')" required>
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-            </select>
-
-            <div id="December-midweek-details" style="display: none;">
-                <label for="December-midweek-service-type">Type of Service:</label>
-                <input type="text" id="December-midweek-service-type" name="December Midweek Service Type">
-
-                <label for="December-midweek-attendance">Attendance:</label>
-                <input type="number" id="December-midweek-attendance" name="December Midweek Attendance">
-            </div>
-        </div>
-
-
-        <button type="submit">Submit Data</button>
     </form>
-
-    <button onclick="showAdminSection()">Admin Access</button>
-
-    <div id="admin-section" style="display:none;">
-        <h2>Admin Section</h2>
-        <p>Submitted data will be displayed here along with analytics and rankings.</p>
-    </div>
-
-    <footer>
-        <p>"Let all that you do be done in love." - 1 Corinthians 16:14</p>
-    </footer>
 </body>
 </html>
