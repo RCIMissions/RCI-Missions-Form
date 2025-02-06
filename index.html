@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RCI Missions Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .container.active {
+            display: block;
+        }
+
+        h1,
+        h3 {
+            text-align: center;
+            color: #007BFF;
+        }
+
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
+
+        input,
+        textarea,
+        button {
+            width: 99%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .dynamic-entry {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .dynamic-entry input,
+        .dynamic-entry textarea {
+            margin-right: 10px;
+            flex: 1;
+        }
+
+        .dynamic-entry button {
+            width: auto;
+            padding: 5px 10px;
+            margin: 0;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .navigation button {
+            width: 48%;
+        }
+    </style>
+    <!-- Firebase SDK -->
+    <!-- <script type="module" src="https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js"></script>
+
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'></script> -->
+
+    <!-- <script src="https://www.gstatic.com/firebasejs/4.3.0/firebase.js"></script> -->
+
+    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-firestore-compat.js"></script>
+
+    <script>
+
+        let currentSection = 0;
+        let dynamicFieldCounter = 0; // Counter for unique field names
+        let midweekServiceCount = 0;
+
+        function showSection(index) {
+            const sections = document.querySelectorAll(".container");
+            sections.forEach((section, i) => {
+                section.classList.remove("active");
+                if (i === index) section.classList.add("active");
+            });
+        }
+
+        function nextSection() {
+            const sections = document.querySelectorAll(".container");
+            if (currentSection < sections.length - 1) {
+                currentSection++;
+                showSection(currentSection);
+            }
+        }
+
+        function previousSection() {
+            if (currentSection > 0) {
+                currentSection--;
+                showSection(currentSection);
+            }
+        }
+
+        function addDynamicEntry(containerId, placeholderText1, placeholderText2 = null) {
+            const container = document.getElementById(containerId);
+            dynamicFieldCounter++; // Increment counter for unique field names
+
+            const entryDiv = document.createElement("div");
+            entryDiv.className = "dynamic-entry";
+            entryDiv.innerHTML = `
+                <textarea name="dynamic_${containerId}_desc_${dynamicFieldCounter}" placeholder="${placeholderText1}" required></textarea>
+                ${placeholderText2 ? `<input type="date" name="dynamic_${containerId}_date_${dynamicFieldCounter}" required>` : ''}
+                <button type="button" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            container.appendChild(entryDiv);
+        }
+
+        function addMidweekService(containerId) {
+            const container = document.getElementById(containerId);
+            dynamicFieldCounter++;
+            
+            const entryDiv = document.createElement("div");
+            entryDiv.className = "dynamic-entry";
+            entryDiv.innerHTML = `
+                <input type="text" name="midweek_${containerId}_type_${dynamicFieldCounter}" placeholder="Service Type" required>
+                <input type="number" name="midweek_${containerId}_attendance_${dynamicFieldCounter}"placeholder="Average Weekly Attendance" required>
+                <button type="button" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            container.appendChild(entryDiv);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            showSection(0);
+        });
+    </script>
+</head>
+
+<body>
+
+    <h1>RCI Missions Data Form</h1>
+    <form id="missionForm">
+        <div class="container active">
+            <h3>General Information</h3>
+            <label for="mission-name">Mission Name:</label>
+            <input type="text" id="mission-name" name="MissionName" required>
+
+            <label for="pastor-name">Pastor Name:</label>
+            <input type="text" id="pastor-name" name="PastorName" required>
+
+            <label for="graduates">Foundation School Graduates (2024):</label>
+            <input type="number" id="graduates" name="Graduates" required>
+
+            <label for="ethnicities">Number of Ethnicities:</label>
+            <input type="number" id="ethnicities" name="Ethnicities" required>
+
+            <label>Total Number of Members:</label>
+            <input type="number" name="TotalMembers" required>
+
+            <label>Total Number of New Members:</label>
+            <input type="number" name="TotalNewMembers" required>
+
+            <label>Leaders Breakdown:</label>
+            <input type="number" placeholder="Pastors" name="Pastors" required>
+            <input type="number" placeholder="Ministers" name="Ministers" required>
+            <input type="number" placeholder="Deacons" name="Deacons" required>
+
+            <label>Events Summary:</label>
+            <input type="number" placeholder="Deaths" name="Deaths" required>
+            <input type="number" placeholder="Baptisms" name="Baptisms" required>
+            <input type="number" placeholder="Weddings" name="Weddings" required>
+            <input type="number" placeholder="Births" name="Births" required>
+            <input type="number" placeholder="Child Naming" name="Naming" required>
+            <input type="number" placeholder="Child Dedication" name="Dedications" required>
+
+            <div class="navigation">
+                <button type="button" onclick="nextSection()">Next</button>
+            </div>
+        </div>
+
+        <!-- Community Benefit Outreach Section -->
+        <div class="container">
+            <h3>Community Benefit Outreach</h3>
+            <div id="community-outreach-container"></div>
+            <button type="button"
+                onclick="addDynamicEntry('community-outreach-container', 'Describe Outreach Activity', 'Date')">Add
+                Outreach Event</button>
+
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
+            </div>
+        </div>
+
+        <!-- Major Conferences Section -->
+        <div class="container">
+            <h3>Major Conferences</h3>
+            <div id="major-conferences-container"></div>
+            <button type="button"
+                onclick="addDynamicEntry('major-conferences-container', 'Describe Conference', 'Date')">Add
+                Conference</button>
+
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
+            </div>
+        </div>
+
+        <!-- Monthly Data Sections -->
+
+        <div class="container">
+            <h3>Monthly Data - January 2024</h3>
+            <label>Average Weekly Sunday Attendance:</label>
+            <input type="number" name="JanuaryAttendance" required>
+
+            <label>Total Donations:</label>
+            <input type="number" name="JanuaryDonations" step="0.01" required>
+
+            <label>Souls Won:</label>
+            <input type="number" name="JanuarySoulsWon" required>
+
+            <label>Visitors/Guests:</label>
+            <input type="number" name="JanuaryVisitors" required>
+
+            <h5>Midweek Services</h5>
+            <div id="january-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('january-midweek-container')">Add Midweek Service</button>
+
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <h3>Monthly Data - February 2024</h3>
+            <label>Average Weekly Sunday Attendance:</label>
+            <input type="number" name="FebruaryAttendance" required>
+
+            <label>Total Donations:</label>
+            <input type="number" name="FebruaryDonations" step="0.01" required>
+
+            <label>Souls Won:</label>
+            <input type="number" name="FebruarySoulsWon" required>
+
+            <label>Visitors/Guests:</label>
+            <input type="number" name="FebruaryVisitors" required>
+
+            <h5>Midweek Services</h5>
+            <div id="february-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('february-midweek-container')">Add Midweek Service</button>
+
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <h3>Monthly Data - March 2024</h3>
+            <label>Average Weekly Sunday Attendance:</label>
+            <input type="number" name="MarchAttendance" required>
+
+            <label>Total Donations:</label>
+            <input type="number" name="MarchDonations" step="0.01" required>
+
+            <label>Souls Won:</label>
+            <input type="number" name="MarchSoulsWon" required>
+
+            <label>Visitors/Guests:</label>
+            <input type="number" name="MarchVisitors" required>
+
+            <h5>Midweek Services</h5>
+            <div id="march-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('march-midweek-container')">Add Midweek Service</button>
+
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <h3>Monthly Data - April 2024</h3>
+            <label>Average Weekly Sunday Attendance:</label>
+            <input type="number" name="AprilAttendance" required>
+
+            <label>Total Donations:</label>
+            <input type="number" name="AprilDonations" step="0.01" required>
+
+            <label>Souls Won:</label>
+            <input type="number" name="AprilSoulsWon" required>
+
+            <label>Visitors/Guests:</label>
+            <input type="number" name="AprilVisitors" required>
+
+            <h5>Midweek Services</h5>
+            <div id="april-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('april-midweek-container')">Add Midweek Service</button>
+
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <h3>Monthly Data - May 2024</h3>
+            <label>Average Weekly Sunday Attendance:</label>
+            <input type="number" name="MayAttendance" required>
+
+            <label>Total Donations:</label>
+            <input type="number" name="MayDonations" step="0.01" required>
+
+            <label>Souls Won:</label>
+            <input type="number" name="MaySoulsWon" required>
+
+            <label>Visitors/Guests:</label>
+            <input type="number" name="MayVisitors" required>
+
+            <h5>Midweek Services</h5>
+            <div id="may-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('may-midweek-container')">Add Midweek Service</button>
+
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <h3>Monthly Data - June 2024</h3>
+            <label>Average Weekly Sunday Attendance:</label>
+            <input type="number" name="JuneAttendance" required>
+
+            <label>Total Donations:</label>
+            <input type="number" name="JuneDonations" step="0.01" required>
+
+            <label>Souls Won:</label>
+            <input type="number" name="JuneSoulsWon" required>
+
+            <label>Visitors/Guests:</label>
+            <input type="number" name="JuneVisitors" required>
+
+            <h5>Midweek Services</h5>
+            <div id="june-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('june-midweek-container')">Add Midweek Service</button>
+
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <h3>Monthly Data - July 2024</h3>
+            <label>Average Weekly Sunday Attendance:</label>
+            <input type="number" name="JulyAttendance" required>
+
+            <label>Total Donations:</label>
+            <input type="number" name="JulyDonations" step="0.01" required>
+
+            <label>Souls Won:</label>
+            <input type="number" name="JulySoulsWon" required>
+
+            <label>Visitors/Guests:</label>
+            <input type="number" name="JulyVisitors" required>
+
+            <h5>Midweek Services</h5>
+            <div id="july-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('july-midweek-container')">Add Midweek Service</button>
+
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <h3>Monthly Data - August 2024</h3>
+            <label>Average Weekly Sunday Attendance:</label>
+            <input type="number" name="AugustAttendance" required>
+
+            <label>Total Donations:</label>
+            <input type="number" name="AugustDonations" step="0.01" required>
+
+            <label>Souls Won:</label>
+            <input type="number" name="AugustSoulsWon" required>
+
+            <label>Visitors/Guests:</label>
+            <input type="number" name="AugustVisitors" required>
+
+            <h5>Midweek Services</h5>
+            <div id="august-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('august-midweek-container')">Add Midweek Service</button>
+
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <h3>Monthly Data - September 2024</h3>
+            <label>Average Weekly Sunday Attendance:</label>
+            <input type="number" name="SeptemberAttendance" required>
+
+            <label>Total Donations:</label>
+            <input type="number" name="SeptemberDonations" step="0.01" required>
+
+            <label>Souls Won:</label>
+            <input type="number" name="SeptemberSoulsWon" required>
+
+            <label>Visitors/Guests:</label>
+            <input type="number" name="SeptemberVisitors" required>
+
+            <h5>Midweek Services</h5>
+            <div id="september-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('september-midweek-container')">Add Midweek
+                Service</button>
+
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <h3>Monthly Data - October 2024</h3>
+            <label>Average Weekly Sunday Attendance:</label>
+            <input type="number" name="OctoberAttendance" required>
+
+            <label>Total Donations:</label>
+            <input type="number" name="OctoberDonations" step="0.01" required>
+
+            <label>Souls Won:</label>
+            <input type="number" name="OctoberSoulsWon" required>
+
+            <label>Visitors/Guests:</label>
+            <input type="number" name="OctoberVisitors" required>
+
+            <h5>Midweek Services</h5>
+            <div id="october-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('october-midweek-container')">Add Midweek Service</button>
+
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <h3>Monthly Data - November 2024</h3>
+            <label>Average Weekly Sunday Attendance:</label>
+            <input type="number" name="NovemberAttendance" required>
+
+            <label>Total Donations:</label>
+            <input type="number" name="NovemberDonations" step="0.01" required>
+
+            <label>Souls Won:</label>
+            <input type="number" name="NovemberSoulsWon" required>
+
+            <label>Visitors/Guests:</label>
+            <input type="number" name="NovemberVisitors" required>
+
+            <h5>Midweek Services</h5>
+            <div id="november-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('november-midweek-container')">Add Midweek Service</button>
+
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <h3>Monthly Data - December 2024</h3>
+            <label>Average Weekly Sunday Attendance:</label>
+            <input type="number" name="DecemberAttendance" required>
+
+            <label>Total Donations:</label>
+            <input type="number" name="DecemberDonations" step="0.01" required>
+
+            <label>Souls Won:</label>
+            <input type="number" name="DecemberSoulsWon" required>
+
+            <label>Visitors/Guests:</label>
+            <input type="number" name="DecemberVisitors" required>
+
+            <h5>Midweek Services</h5>
+            <div id="december-midweek-container"></div>
+            <button type="button" onclick="addMidweekService('december-midweek-container')">Add Midweek Service</button>
+
+            <div class="navigation">
+                <button type="button" onclick="previousSection()">Back</button>
+                <button type="button" onclick="nextSection()">Next</button>
+            </div>
+        </div>
+
+
+        <!-- Final Submission Section (MAKE SURE IT'S VISIBLE) -->
+        <div class="container">
+            <h3>Finalize and Submit</h3>
+            <p>Review all entered data and click "Submit" to save.</p>
+            <button type="button" onclick="previousSection()">Back</button>
+            <button type="submit">Submit</button>
+            <button type="button" onclick="window.location.href='admin_panel.html'">Go to Admin Panel</button>
+        </div>
+    </form>
+
+    <!-- <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js'
+    
+        // If you enabled Analytics in your project, add the Firebase SDK for Google Analytics
+        // import { getAnalytics } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-analytics.js'
+    
+        // Add Firebase products that you want to use
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js'
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js'
+    </script> -->
+
+    <script>
+        
+        document.addEventListener("DOMContentLoaded", () => {
+            showSection(0);
+            
+        });
+
+        // ✅ FIXED: Firebase Initialization
+        const firebaseConfig = {
+            apiKey: "AIzaSyA4h_lmPEsnVjTWZCDKawkTwgrQKCWb_bA",
+            authDomain: "rci-missions.firebaseapp.com",
+            projectId: "rci-missions",
+            storageBucket: "rci-missions.appspot.com",
+            messagingSenderId: "162348577976",
+            appId: "1:162348577976:web:79757641f40ffdb1d8704d"
+        };
+
+        // firebase.initializeApp(firebaseConfig);
+        // const db = firebase.firestore();
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        var firestore = firebase.firestore();
+        console.log(firestore);
+        const db = firebase.firestore();
+
+        // ✅ FIXED: Navigation Logic
+        // let currentSection = 0;
+        function showSection(index) {
+            const sections = document.querySelectorAll(".container");
+            sections.forEach((section, i) => {
+                section.classList.remove("active");
+                if (i === index) section.classList.add("active");
+            });
+        }
+
+function nextSection() {
+    const sections = document.querySelectorAll(".container");
+    const inputs = sections[currentSection].querySelectorAll("input[required], textarea[required]");
+
+    let allFilled = true;
+    inputs.forEach(input => {
+        if (!input.value.trim()) {
+            allFilled = false;
+            input.style.border = "2px solid red"; // Highlight empty fields
+        } else {
+            input.style.border = ""; // Reset border if filled
+        }
+    });
+
+    if (!allFilled) {
+        alert("⚠️ Please fill in all required fields before proceeding.");
+        return;
+    }
+
+    if (currentSection < sections.length - 1) {
+        currentSection++;
+        showSection(currentSection);
+    }
+}
+
+        function previousSection() {
+            if (currentSection > 0) {
+                currentSection--;
+                showSection(currentSection);
+            }
+        }
+
+        // ✅ FIXED: Firestore Submission Function
+        document.getElementById("missionForm").addEventListener("submit", async function (event) {
+            event.preventDefault(); // Prevents page refresh
+
+            const submission = {};
+            const inputs = document.querySelectorAll("form input, form textarea");
+
+            // Collect form data, including dynamically added fields
+            inputs.forEach(input => {
+                if (input.value.trim() !== "") {
+                submission[input.name] = input.value;
+                }
+            });
+
+            if (Object.keys(submission).length === 0) {
+                alert("⚠️ Please fill in at least one field before submitting.");
+                return;
+            }
+
+            try {
+                await db.collection("submissions").add(submission);
+                alert("Submission saved successfully!");
+
+                document.getElementById("missionForm").reset();
+                window.location.href = "admin_panel.html"; // Redirect to Admin
+            } catch (error) {
+                console.error("Error saving submission: ", error);
+                alert("Failed to save submission. Please try again.");
+            }
+        });
+
+
+        function addDynamicEntry(containerId, placeholderText1, placeholderText2 = null) {
+            const container = document.getElementById(containerId);
+            const entryDiv = document.createElement("div");
+            entryDiv.className = "dynamic-entry";
+            dynamicFieldCounter++; // increment counter for unique field names
+            entryDiv.innerHTML = `
+                 <textarea name="dynamic_${containerId}_desc_${dynamicFieldCounter}" placeholder="${placeholderText1}" required></textarea>
+                ${placeholderText2 ? `<input type="date" name="dynamic_${containerId}_date_${dynamicFieldCounter}" required>` : ''}
+                <button type="button" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            container.appendChild(entryDiv);
+        }
+    </script>
+</body>
+
+</html>
